@@ -1,0 +1,1 @@
+coffee -c ./index.coffee & coffee -b -c ./helper.coffee
