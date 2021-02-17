@@ -2,7 +2,7 @@
 (function() {
   var GridWidth, SquareWidth, _, background, canvas, clear, ctx, drawAll, drawPiece, game, grids, i, initGrid, j, loadOthello, offset, player, r, rc, update;
 
-  SquareWidth = Math.min(window.innerWidth, window.innerHeight) * .8;
+  SquareWidth = Math.min(window.innerWidth, window.innerHeight) * .8 - 60;
 
   GridWidth = SquareWidth / 8;
 
@@ -122,7 +122,7 @@
   });
 
   canvas.addEventListener('click', function(event) {
-    var col, row, x, y;
+    var col, row, upd, x, y;
     [x, y] = getMousePosition(canvas, event);
     row = Math.floor((x - offset) / GridWidth);
     col = Math.floor(y / GridWidth);
@@ -134,9 +134,21 @@
     }
     place(game, col, row);
     drawAll();
-    player++;
-    player %= 2;
-    return document.getElementById("turn").innerHTML = `${["White", "Black"][player]}'s turn`;
+    upd = function() {
+      var p;
+      player++;
+      player %= 2;
+      document.getElementById("turn").innerHTML = `${["White", "Black"][player]}'s turn`;
+      p = game.board.countByPieceType();
+      return document.getElementById("count").innerHTML = `⚫: ${p[reversi.PIECE_TYPES.BLACK]} | ⚪: ${p[reversi.PIECE_TYPES.WHITE]}`;
+    };
+    upd();
+    if (game.isEnded) {
+      document.getElementById("count").innerHTML += " (Game Ended!)";
+    }
+    if (!game.board.hasPlacableSquare([reversi.PIECE_TYPES.WHITE, reversi.PIECE_TYPES.BLACK][player])) {
+      return upd();
+    }
   });
 
 }).call(this);

@@ -1,4 +1,4 @@
-SquareWidth = Math.min(window.innerWidth, window.innerHeight) * .8
+SquareWidth = Math.min(window.innerWidth, window.innerHeight) * .8 - 60
 
 GridWidth = SquareWidth / 8
 
@@ -114,7 +114,19 @@ canvas.addEventListener 'click', (event) ->
 
   drawAll()
 
-  player++
-  player %= 2
+  upd = ->
+    player++
+    player %= 2
 
-  document.getElementById("turn").innerHTML = "#{["White", "Black"][player]}'s turn"
+    document.getElementById("turn").innerHTML = "#{["White", "Black"][player]}'s turn"
+
+    p = game.board.countByPieceType()
+    document.getElementById("count").innerHTML = "⚫: #{p[reversi.PIECE_TYPES.BLACK]} | ⚪: #{p[reversi.PIECE_TYPES.WHITE]}"
+
+  upd()
+
+  if game.isEnded
+    document.getElementById("count").innerHTML += " (Game Ended!)"
+
+  if !game.board.hasPlacableSquare([reversi.PIECE_TYPES.WHITE, reversi.PIECE_TYPES.BLACK][player])
+    upd()
