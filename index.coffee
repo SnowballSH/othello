@@ -23,12 +23,14 @@ original = [
   [-1, -1, -1, -1, -1, -1, -1, -1],
 ]
 
+globalData = original
+
 player = 1
 
 clear = ->
   ctx.clearRect 0, 0, canvas.width, canvas.height
 
-draw = (data, row, column) ->
+initGrid = (row, column) ->
   startX = offset + row * GridWidth
   startY = column * GridWidth
 
@@ -41,7 +43,13 @@ draw = (data, row, column) ->
     fillWeight: 3
   )
 
-  piece = data[row][column]
+  drawPiece(row, column)
+
+drawPiece = (row, column) ->
+  startX = offset + row * GridWidth
+  startY = column * GridWidth
+
+  piece = globalData[row][column]
   switch piece
     when -1
       null
@@ -64,20 +72,32 @@ draw = (data, row, column) ->
     else
       null
 
-update = (data) ->
-  for row, r in data
+update = ->
+  clear()
+  for row, r in globalData
     for _, c in row
-      draw(data, r, c)
+      initGrid(r, c)
 
 loadOthello = ->
-  data = localStorage.getItem "save"
-  if data == null
-    data = original
+  globalData = localStorage.getItem "save"
+  if globalData == null
+    globalData = original
 
-  update(data)
+  update()
 
 $ ->
   loadOthello()
 
 canvas.addEventListener 'click', (event) ->
-  getMousePosition(canvas, event)
+  [x, y] = getMousePosition(canvas, event)
+  row = Math.floor((x - offset) / GridWidth)
+  col = Math.floor(y / GridWidth)
+  if row < 0 || row > 7 || col < 0 || col > 7 || globalData[row][col] != -1
+    return
+  globalData[row][col] = player
+  drawPiece(row, col)
+
+  player++
+  player %= 2
+
+  document.getElementById("turn").innerHTML = "#{["White", "Black"][player]}'s turn"
