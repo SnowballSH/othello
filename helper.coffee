@@ -3,3 +3,5 @@ getMousePosition = (canvas, event) ->
   x = event.clientX - rect.left
   y = event.clientY - rect.top
   [x, y]
+
+window.getMousePosition = getMousePosition

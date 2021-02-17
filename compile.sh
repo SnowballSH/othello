@@ -1,1 +1,2 @@
-coffee -c ./index.coffee & coffee -b -c ./helper.coffee
+coffee -wc ./ &
+watchify ./reversiUtil.js -o ./reversiUtil.min.js

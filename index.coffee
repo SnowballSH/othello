@@ -12,18 +12,23 @@ ctx = canvas.getContext "2d"
 
 rc = rough.canvas canvas
 
-original = [
-  [-1, -1, -1, -1, -1, -1, -1, -1],
-  [-1, -1, -1, -1, -1, -1, -1, -1],
-  [-1, -1, -1, -1, -1, -1, -1, -1],
-  [-1, -1, -1, 0, 1, -1, -1, -1],
-  [-1, -1, -1, 1, 0, -1, -1, -1],
-  [-1, -1, -1, -1, -1, -1, -1, -1],
-  [-1, -1, -1, -1, -1, -1, -1, -1],
-  [-1, -1, -1, -1, -1, -1, -1, -1],
-]
+background = rc.generator.rectangle(
+  offset,
+  0,
+  GridWidth * 8,
+  GridWidth * 8,
+  fill: "rgba(10, 150, 10, 0.4)",
+  fillWeight: 2
+  fillStyle: "cross-hatch"
+)
 
-globalData = original
+grids = []
+for r in [0..7]
+  grids.push([])
+  for _ in [0..7]
+    grids[r].push(null)
+
+game = newGame()
 
 player = 1
 
@@ -34,14 +39,17 @@ initGrid = (row, column) ->
   startX = offset + row * GridWidth
   startY = column * GridWidth
 
-  rc.rectangle(
-    startX,
-    startY,
-    GridWidth,
-    GridWidth,
-    fill: "rgba(10, 150, 10, 0.4)",
-    fillWeight: 3
-  )
+  gr = grids[row][column]
+
+  if !gr
+    grids[row][column] = rc.rectangle(
+      startX,
+      startY,
+      GridWidth,
+      GridWidth,
+    )
+  else
+    rc.draw(gr)
 
   drawPiece(row, column)
 
@@ -49,11 +57,11 @@ drawPiece = (row, column) ->
   startX = offset + row * GridWidth
   startY = column * GridWidth
 
-  piece = globalData[row][column]
-  switch piece
-    when -1
+  piece = game.board.squares[column][row]
+  switch piece._pieceType
+    when "BLANK"
       null
-    when 0
+    when "WHITE"
       rc.circle(
         startX + GridWidth * .5,
         startY + GridWidth * .5,
@@ -61,7 +69,7 @@ drawPiece = (row, column) ->
         fill: "white",
         fillStyle: "solid"
       )
-    when 1
+    when "BLACK"
       rc.circle(
         startX + GridWidth * .5,
         startY + GridWidth * .5,
@@ -72,17 +80,20 @@ drawPiece = (row, column) ->
     else
       null
 
+drawAll = ->
+  update()
+  for row in [0..7]
+    for col in [0..7]
+      drawPiece(row, col)
+
 update = ->
   clear()
-  for row, r in globalData
+  rc.draw(background)
+  for row, r in game.board.squares
     for _, c in row
       initGrid(r, c)
 
 loadOthello = ->
-  globalData = localStorage.getItem "save"
-  if globalData == null
-    globalData = original
-
   update()
 
 $ ->
@@ -92,10 +103,16 @@ canvas.addEventListener 'click', (event) ->
   [x, y] = getMousePosition(canvas, event)
   row = Math.floor((x - offset) / GridWidth)
   col = Math.floor(y / GridWidth)
-  if row < 0 || row > 7 || col < 0 || col > 7 || globalData[row][col] != -1
+
+  if row < 0 || row > 7 || col < 0 || col > 7 || game.board.squares[col][row]._pieceType != "BLANK"
     return
-  globalData[row][col] = player
-  drawPiece(row, col)
+
+  if !game.board.isPlaceableSquare(col, row, [reversi.PIECE_TYPES.WHITE, reversi.PIECE_TYPES.BLACK][player])
+    return
+
+  place(game, col, row)
+
+  drawAll()
 
   player++
   player %= 2
