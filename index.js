@@ -143,11 +143,11 @@
       return document.getElementById("count").innerHTML = `⚫: ${p[reversi.PIECE_TYPES.BLACK]} | ⚪: ${p[reversi.PIECE_TYPES.WHITE]}`;
     };
     upd();
-    if (game.isEnded) {
-      document.getElementById("count").innerHTML += " (Game Ended!)";
-    }
     if (!game.board.hasPlacableSquare([reversi.PIECE_TYPES.WHITE, reversi.PIECE_TYPES.BLACK][player])) {
-      return upd();
+      upd();
+    }
+    if (game.isEnded) {
+      return document.getElementById("count").innerHTML += " (Game Ended!)";
     }
   });
 

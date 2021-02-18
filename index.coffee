@@ -125,8 +125,8 @@ canvas.addEventListener 'click', (event) ->
 
   upd()
 
-  if game.isEnded
-    document.getElementById("count").innerHTML += " (Game Ended!)"
-
   if !game.board.hasPlacableSquare([reversi.PIECE_TYPES.WHITE, reversi.PIECE_TYPES.BLACK][player])
     upd()
+
+  if game.isEnded
+    document.getElementById("count").innerHTML += " (Game Ended!)"
