@@ -4,4 +4,4 @@
 
 Demo:
 
-![Demo](https://github.com/SnowballSH/othello/blob/master/demo.png)
+![Demo](https://cdn.discordapp.com/attachments/536199577284509696/811797012650524752/unknown.png)
